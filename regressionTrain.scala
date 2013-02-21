@@ -5,6 +5,10 @@ import BIDMat.Solvers._
 import BIDMat.Plotting._
 
 package RegressionTrainer {
+  // X : a matrix of examples.  Each column is an example, each row is a feature
+  // Y : a column vector of labels.  ith row is the label for the ith col of X
+  // a : the step size
+  // t : how much error we are willing to accept
   class trainer(X: FMat, Y: FMat, a: Float, t: Float) {
     Mat.noMKL=true
     val THRESHOLD: Float = .0000000001f
