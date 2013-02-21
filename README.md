@@ -18,3 +18,9 @@ we subtract this column from w, moving it closer to the minimum of loss function
 when we are within some error threshold (the sum of the partial derivatives is close enough to zero, aka w is almost at its minimum) we decide that we have converged.
 
 Our w vector can now be used to make a new prediction.  Given a new feature vector (M x 1), we can multiple w.t * fv to get our predicted label.
+
+
+Use as follows:
+  * use ProcessData to generate and serialize the input matrixes (X and Y)
+  * use TrainingHandler (not written yet) to load the input matrixes, pass the input to regressionTrainer to learn the weights, and serialize the weight vector
+  * use TestHandler (not written yet) to load in the weight vector and make predictions about the held out data
