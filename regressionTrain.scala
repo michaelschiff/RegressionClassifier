@@ -14,12 +14,6 @@ package RegressionTrainer {
       val combo = (w.t * X).t
       val diff = combo - Y
       val twice_diff = diff * 2.0f
-      //var gs: FMat = null
-      //for ( i <- 0 to X.nrows-1 ) { 
-      //  val g = X(i, ?) * twice_diff
-      //  if (gs == null) { gs = g }
-      //  else { gs = gs on g}
-      //}
       var gs = X * twice_diff
       return gs
     }
