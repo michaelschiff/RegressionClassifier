@@ -19,6 +19,7 @@ object FirstPass {
   def main(args: Array[String]) {
     firstPass()
     secondPass()
+    thirdPass()
   }
 
   def firstPass() = {
@@ -72,5 +73,25 @@ object FirstPass {
     println("collected " + wordBag.keys.size + " bags of words")
     println("gathered " + labelBag.keys.size + " ratings!")
   }
-
+  
+  def thirdPass() = {
+    var Y: FMat = null
+    for ( i <- 0 to labelBag.keys.size-1 ) {
+      if ( Y == null) { Y = labelBag(i) }
+      else { Y = Y on labelBag(i) }
+    }
+    println("built Y vector")
+    var X: SMat = null
+    for ( i <- 0 to wordBag.keys.size-1 ) {
+      val col = zeros(dictionary.size, 1)
+      for ( t <- wordBag(i) ) {
+        col(revTokenIndex(t)) = 1.0
+      }
+      if ( X == null ) { X = sparse(col) }
+      else { X = X \ sparse(col) }
+    }
+    println("built X matrix")
+    println("saving files")
+    saveAs("mats.out", X, "X", Y, "Y")
+  }
 }
