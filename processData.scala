@@ -5,9 +5,8 @@ import BIDMat.Solvers._
 import BIDMat.Plotting._
 import java.io._
 
-package MatrixBuilder {
-object Builder extends App{
-  
+package ProcessData {
+object DefaultProcess extends App {
 	println("started")
 			
 	var a = new DataInputStream(new FileInputStream("tokens.bin"));
