@@ -11,8 +11,8 @@ package RegressionTrainer {
   // t : how much error we are willing to accept
   class trainer(X: FMat, Y: FMat, a: Float, t: Float) {
     Mat.noMKL=true
-    val THRESHOLD: Float = .0000000001f
-    val ALPHA: Float = .001f
+    val THRESHOLD: Float = t
+    val ALPHA: Float = a
     var w: FMat = zeros(X.nrows ,1)
     def gradients(): FMat = {
       val combo = (w.t * X).t
