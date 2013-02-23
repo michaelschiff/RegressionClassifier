@@ -77,7 +77,7 @@ object FirstPass {
   def thirdPass() = {
     var Y: FMat = FMat(labelBag.keys.size, 1)
     for ( i <- 0 to labelBag.keys.size-1 ) {
-      Y(i) = labelBag(i)
+      Y(i.asInstanceOf[Int]) = labelBag(i)
     }
     println("built Y vector")
     var X: SMat = null
