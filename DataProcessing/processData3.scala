@@ -51,7 +51,7 @@ object FirstPass {
         labelBag += (review -> l)
         ratingFlag = false
       }
-      if ( reviewFlag ) {
+      if ( reviewFlag && index < 100000 ) {
         val ns: Set[String] = wordBag(review) + words(index)
         wordBag += ( review -> ns )
       }
@@ -91,9 +91,11 @@ object FirstPass {
       }
       val jj: IMat = IMat(zeros(wordBag(i).size, 1)) //always 0 column
       val vv: FMat = ones(wordBag(i).size, 1) //turn on bit given by row,col
-      val col: SMat = sparse(ii, jj, vv, dictionary.size, 1)
-      if ( X == null ) { X = col }
-      else { X = X \ col }
+      val c: SMat = null
+      if ( ii != null ) { c = sparse(ii, jj, vv, dictionary.size, 1) }
+      else { c = sparse(zeros(dictionary.size, 1)) }
+      if ( X == null ) { X = c }
+      else { X = X \ c }
       if ( i%1000 == 0 ) { println("X is " + i + " cols") }
     }
     println("built X matrix")
