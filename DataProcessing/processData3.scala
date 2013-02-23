@@ -75,10 +75,9 @@ object FirstPass {
   }
   
   def thirdPass() = {
-    var Y: FMat = null
+    var Y: FMat = FMat(labelBag.keys.size, 1)
     for ( i <- 0 to labelBag.keys.size-1 ) {
-      if ( Y == null) { Y = labelBag(i) }
-      else { Y = Y on labelBag(i) }
+      Y(i) = labelBag(i)
     }
     println("built Y vector")
     var X: SMat = null
@@ -89,6 +88,7 @@ object FirstPass {
       }
       if ( X == null ) { X = sparse(col) }
       else { X = X \ sparse(col) }
+      println(i)
     }
     println("built X matrix")
     println("saving files")
