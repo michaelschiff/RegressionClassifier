@@ -25,6 +25,7 @@ object FirstPass {
   def firstPass() = {
     println("loading data...")
     var tokens: IMat = load("/scratch/HW2/tokenized.mat", "tokens")
+    tokens = tokens.t(?, 2)
     val words: CSMat = load("/scratch/HW2/tokenized.mat", "smap")
     println("data loaded")
     
@@ -32,11 +33,11 @@ object FirstPass {
     var reviewFlag = false 
 
     var review: Integer = 0
-    for ( i <- 2 to tokens.size-1 by 3 ) {
+    for ( i <- 0 to tokens.size-1 ) {
       val index = tokens(i)-1
       if ( words(index) == "</review_text>" ) { 
         reviewFlag = false
-        if (review%100 == 0) println(review)
+        if (review%1000 == 0) println(review)
         review += 1
       }
       if ( ratingFlag ) {
@@ -64,9 +65,10 @@ object FirstPass {
   }
 
   def secondPass() = {
+    println("book keeping...")
     var i: Integer = 0
     for ( x <- dictionary ) {
-      tokenIndex += ( i -> x )
+      //tokenIndex += ( i -> x )
       revTokenIndex += ( x -> i)
     }
     println("built dictionary of " + dictionary.size + " tokens.")
@@ -75,19 +77,24 @@ object FirstPass {
   }
   
   def thirdPass() = {
-    var Y: FMat = FMat(labelBag.keys.size, 1)
-    for ( i:Int <- 0 to labelBag.keys.size-1 ) {
-      Y(i) = labelBag(i)
-    }
+    println("building Y...")
+    var Y:FMat = FMat(icol(labelBag.values.map( a => a.toInt ).toList))
     println("built Y vector")
+    
+    println("building X matrix...")
     var X: SMat = null
     for ( i <- 0 to wordBag.keys.size-1 ) {
-      val jj = ones(wordBag(i).size,1)
-      val ii = FMat(wordBag(i).foreach( x => revTokenIndex(x) ))
-      val vv = ones(wordBag(i).size,1)
-      if ( X == null ) { X = sparse(ii, jj, vv) }
-      else { X = X \ sparse(ii, jj, vv) }
-      if ( i%100 == 0 ) { println(i) }
+      var ii: IMat = null
+      for ( t <- wordBag(i) ) {
+        if ( ii == null ) { ii = icol(revTokenIndex(t)) }
+        else { ii = ii on icol(revTokenIndex(t)) }
+      }
+      val jj: IMat = IMat(zeros(wordBag(i).size, 1)) //always 0 column
+      val vv: FMat = ones(wordBag(i).size, 1) //turn on bit given by row,col
+      val col: SMat = sparse(ii, jj, vv, dictionary.size, 1)
+      if ( X == null ) { X = col }
+      else { X = X \ col }
+      if ( i%1000 == 0 ) { println("X is " + i + " cols") }
     }
     println("built X matrix")
     println("saving files")
