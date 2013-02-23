@@ -82,13 +82,12 @@ object FirstPass {
     println("built Y vector")
     var X: SMat = null
     for ( i <- 0 to wordBag.keys.size-1 ) {
-      val col = zeros(dictionary.size, 1)
-      for ( t <- wordBag(i) ) {
-        col(revTokenIndex(t).asInstanceOf[Int]) = 1.0
-      }
-      if ( X == null ) { X = sparse(col) }
-      else { X = X \ sparse(col) }
-      println(i)
+      val jj = ones(wordBag(i).size,1)
+      val ii = FMat(wordBag(i).foreach( x => revTokenIndex(x) ))
+      val vv = ones(wordBag(i).size,1)
+      if ( X == null ) { X = sparse(ii, jj, vv) }
+      else { X = X \ sparse(ii, jj, vv) }
+      if ( i%100 == 0 ) { println(i) }
     }
     println("built X matrix")
     println("saving files")
