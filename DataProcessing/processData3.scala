@@ -85,7 +85,7 @@ object FirstPass {
     for ( i <- 0 to wordBag.keys.size-1 ) {
       val col = zeros(dictionary.size, 1)
       for ( t <- wordBag(i) ) {
-        col(revTokenIndex(t)) = 1.0
+        col(revTokenIndex(t).asInstanceOf[Int]) = 1.0
       }
       if ( X == null ) { X = sparse(col) }
       else { X = X \ sparse(col) }
