@@ -79,18 +79,24 @@ object FirstPass {
   
   def thirdPass() = {
     println("building Y...")
-    var Y:FMat = FMat(icol(labelBag.values.map( a => a.toInt ).toList))
+    var Y:FMat = col(labelBag.values.toList)
     println("built Y vector")
     
     println("building X matrix...")
     var X: SMat = null
     for ( i <- 0 to wordBag.keys.size-1 ) {
-      val c: FMat = zeros(dictionary.size, 1)
+      var ii: IMat = null
       for ( t <- wordBag(i) ) {
-        c(revTokenIndex(t).asInstanceOf[Int],0) = 1
+        if ( ii == null ) { ii = revTokenIndex(t) }
+        else { ii = ii on revTokenIndex(t) }
       }
-      if ( X == null ) { X = sparse(c) }
-      else { X = X \ sparse(c) }
+      val jj: IMat = IMat(wordBag(i).size, 1)
+      val vv: FMat = ones(wordBag(i).size, 1)
+      var c: SMat = null
+      if ( ii == null ) { c = sparse(zeros(dictionary.size,1)) }
+      else { c = sparse(ii, jj, vv, dictionary.size, 1) }
+      if ( X == null ) { X = c }
+      else { X = X \ c }
       if ( i%1000 == 0 ) { println("X is " + i + " cols") }
     }
     println("built X matrix")
