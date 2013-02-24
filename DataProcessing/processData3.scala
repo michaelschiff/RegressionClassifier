@@ -79,7 +79,7 @@ object FirstPass {
   
   def thirdPass() = {
     println("building Y...")
-    var Y:FMat = FMat(icol(labelBag.values.map( a => a.asInt ).toList))
+    var Y:FMat = FMat(icol(labelBag.values.map( a => a.toInt ).toList))
     println("built Y vector")
     
     println("building X matrix...")
