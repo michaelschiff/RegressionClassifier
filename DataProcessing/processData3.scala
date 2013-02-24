@@ -12,7 +12,7 @@ object FirstPass {
   
   var dictionary: Set[String] = Set[String]()
   var wordBag: Map[Integer, Set[String]] = Map[Integer, Set[String]]()
-  var labelBag: Map[Integer, Float] = Map[Integer, Float]()
+  var labelBag: Map[Integer, Int] = Map[Integer, Int]()
   var tokenIndex: Map[Integer, String] = Map[Integer, String]()
   var revTokenIndex: Map[String, Integer] = Map[String, Integer]()
 
@@ -41,13 +41,13 @@ object FirstPass {
         review += 1
       }
       if ( ratingFlag ) {
-        var l = 0.0f
+        var l = 0
         var ll = words(index)
-        if ( ll == "1.0" ) { l = 1.0f }
-        else if ( ll == "2.0" ) { l = 2.0f }
-        else if ( ll == "3.0" ) { l = 3.0f }
-        else if ( ll == "4.0" ) { l = 4.0f }
-        else if ( ll == "5.0" ) { l = 5.0f }
+	if ( ll == "1" ) { l = 1 }
+        else if ( ll == "2" ) { l = 2 }
+        else if ( ll == "3" ) { l = 3 }
+        else if ( ll == "4" ) { l = 4 }
+        else if ( ll == "5" ) { l = 5 }
         labelBag += (review -> l)
         ratingFlag = false
       }
@@ -79,15 +79,15 @@ object FirstPass {
   
   def thirdPass() = {
     println("building Y...")
-    var Y:FMat = FMat(icol(labelBag.values.map( a => a.toInt ).toList))
+    var Y:IMat = icol(labelBag.values.toList)
     println("built Y vector")
     
     println("building X matrix...")
     var X: SMat = null
-    for ( i <- 0 to wordBag.keys.size-1 ) {
+    for ( i <- 0 to 10000 ) { //wordBag.keys.size-1 ) {
       var ii: IMat = null
       for ( t <- wordBag(i) ) {
-        if ( ii == null ) { ii = revTokenIndex(t).asInstanceOf[IMat] }
+        if ( ii == null ) { ii = icol(revTokenIndex(t)) }
         else { ii = ii on revTokenIndex(t) }
       }
       val jj: IMat = IMat(wordBag(i).size, 1)
