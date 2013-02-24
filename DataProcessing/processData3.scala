@@ -79,7 +79,7 @@ object FirstPass {
   
   def thirdPass() = {
     println("building Y...")
-    var Y:FMat = col(labelBag.values.toList)
+    var Y:FMat = FMat(icol(labelBag.values.map( a => a.asInt ).toList))
     println("built Y vector")
     
     println("building X matrix...")
@@ -87,7 +87,7 @@ object FirstPass {
     for ( i <- 0 to wordBag.keys.size-1 ) {
       var ii: IMat = null
       for ( t <- wordBag(i) ) {
-        if ( ii == null ) { ii = revTokenIndex(t) }
+        if ( ii == null ) { ii = revTokenIndex(t).asInstanceOf[IMat] }
         else { ii = ii on revTokenIndex(t) }
       }
       val jj: IMat = IMat(wordBag(i).size, 1)
