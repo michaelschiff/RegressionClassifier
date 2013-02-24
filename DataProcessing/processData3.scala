@@ -85,18 +85,12 @@ object FirstPass {
     println("building X matrix...")
     var X: SMat = null
     for ( i <- 0 to wordBag.keys.size-1 ) {
-      var ii: IMat = null
+      val c: FMat = zeros(dictionary.size, 1)
       for ( t <- wordBag(i) ) {
-        if ( ii == null ) { ii = icol(revTokenIndex(t)) }
-        else { ii = ii on icol(revTokenIndex(t)) }
+        c(revTokenIndex(t),0) = 1
       }
-      val jj: IMat = IMat(zeros(wordBag(i).size, 1)) //always 0 column
-      val vv: FMat = ones(wordBag(i).size, 1) //turn on bit given by row,col
-      var c: SMat = null
-      if ( ii != null ) { c = sparse(ii, jj, vv, dictionary.size, 1) }
-      else { c = sparse(zeros(dictionary.size, 1)) }
-      if ( X == null ) { X = c }
-      else { X = X \ c }
+      if ( X == null ) { X = sparse(c) }
+      else { X = X \ sparse(c) }
       if ( i%1000 == 0 ) { println("X is " + i + " cols") }
     }
     println("built X matrix")
