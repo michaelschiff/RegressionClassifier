@@ -4,6 +4,8 @@ import BIDMat.SciFunctions._
 import BIDMat.Solvers._
 import BIDMat.Plotting._
 
+trainAndTest.main(Array())
+
   // X : a matrix of examples.  Each column is an example, each row is a feature
   // Y : a column vector of labels.  ith row is the label for the ith col of X
   // a : the step size
@@ -25,7 +27,7 @@ import BIDMat.Plotting._
       val e: Float = abs(sum(k,1))(0,0)
       return e
     }
-    def predict(x: FMat): Float = x*w(0,0)
+    def predict(x: FMat): Float = (x*w)(0,0)
     while ( error() > THRESHOLD ) {
       w -= gradients() * ALPHA
     }
@@ -33,19 +35,11 @@ import BIDMat.Plotting._
 
   object trainAndTest {
     def main(args: Array[String]) {
-      val e: SMat = load("out.mat", "X")
-      val l: FMat = load("out.mat", "Y")
-      val trainingExamples: FMat = full(e(?, 0 to 800000))
-      val trainingLabels: FMat = (l.t)(?, 0 to 800000).t
-      val testExamples: FMat = full(e(?, 800001 to ))
-      val testLabels: FMat = (l.t)(?, 800001 to ).t
-      
-      val classifier = new trainer(trainingExamples, trainingLabels, 0.001f, 0.0000001f)
-      for (i <- 0 to testExamples.ncols-1) {
-        print("classifier predicted: ")
-        print(classifier.predict(testExamples(?, i).t))
-        print(" actually label was: ")
-        println(testLabels(i, 0))
-      }
+      println("loading data")
+      val e: SMat = load("FullSparse.mat", "X")
+      val l: FMat = load("FullSparse.mat", "Y")
+      print("training classifier")
+      val classifier = new trainer(full(e), l, 0.001f, 0.0000001f)
+      println("finished training")
     }
   }

@@ -70,6 +70,7 @@ object FirstPass {
     for ( x <- dictionary ) {
       //tokenIndex += ( i -> x )
       revTokenIndex += ( x -> i)
+      i += 1
     }
     println("built dictionary of " + dictionary.size + " tokens.")
     println("collected " + wordBag.keys.size + " bags of words")
@@ -91,7 +92,7 @@ object FirstPass {
       }
       val jj: IMat = IMat(zeros(wordBag(i).size, 1)) //always 0 column
       val vv: FMat = ones(wordBag(i).size, 1) //turn on bit given by row,col
-      val c: SMat = null
+      var c: SMat = null
       if ( ii != null ) { c = sparse(ii, jj, vv, dictionary.size, 1) }
       else { c = sparse(zeros(dictionary.size, 1)) }
       if ( X == null ) { X = c }
@@ -100,6 +101,6 @@ object FirstPass {
     }
     println("built X matrix")
     println("saving files")
-    saveAs("mats.out", X, "X", Y, "Y")
+    saveAs("TrimmedSparse.mat", X, "X", Y, "Y")
   }
 }
