@@ -8,6 +8,8 @@ import scala.util.Marshal
 import scala.io.Source
 import java.io._
 
+FirstPass.main(Array())
+
 object FirstPass {
   
   var dictionary: Set[String] = Set[String]()
@@ -16,6 +18,7 @@ object FirstPass {
   var tokenIndex: Map[Integer, String] = Map[Integer, String]()
   var revTokenIndex: Map[String, Integer] = Map[String, Integer]()
   var stem = true
+  val stemmer = new Stemmer()
 
   def main(args: Array[String]) {
     firstPass()
@@ -54,8 +57,8 @@ object FirstPass {
       }
       if ( reviewFlag && index < 100000 ) {
         var wd = words(index)
-        if (stop) { wd = removeStopWords(wd)
-        val ns: Set[String] = wordBag(review) + words(index)
+        if (stem) { wd = stemmer.stem(wd) }
+        val ns: Set[String] = wordBag(review) + wd
         wordBag += ( review -> ns )
       }
       if ( words(index) == "<rating>" ) { ratingFlag = true }
@@ -102,13 +105,19 @@ object FirstPass {
       else { X = X \ c }
       if ( (i+1)%1000 == 0 ) { 
         println("Saving " + (i+1)/1000.0 + "th partial X") 
-        saveAs("StemmedOut/StemmedTrimmedSparse"+(i+1/1000.0)+".mat", X, "X"+(i+1)/1000.0)
+        if (stem) { saveAs("StemmedOut/StemmedTrimmedSparse"+((i+1)/1000.0)+".mat", X, ((i+1)/1000.0)+"StemmedX") }
+        else { saveAs("out/TrimmedSparse"+((i+1)/1000.0)+".mat", X, ((i+1)/1000.0)+"X") }
         X = null
       }
     }
     println("saving Y and last partial X")
-    saveAs("StemmedOut/StemmedTrimmedSparseY.mat", Y, "Y")
-    saveAs("StemmedOut/StemmedTrimmedSparseLastX.mat", X, "XLast")
+    if (stem) {
+      saveAs("StemmedOut/StemmedTrimmedSparseY.mat", Y, "Y")
+      saveAs("StemmedOut/StemmedTrimmedSparseLastX.mat", X, "XLast")
+    } else {
+      saveAs("out/TrimmedSparseY.mat", Y, "Y")
+      saveAs("out/TrimmedSparseLastX.mat", X, "XLast")
+    }
   }
 }
 
