@@ -23,10 +23,9 @@ trainAndTest.main(Array())
     var w: FMat = zeros(numWeights ,1)
    
     def gradients(X: SMat, Y:FMat): FMat = {
-      println("called gradients")
       if ( X.ncols != Y.nrows ) { println("ERROR: block dimensions to not match") }
       //val combo = (w.t * X).t
-      val combo = X Tmult(w.t, null)
+      val combo = X Tmult(w, null) //X is sparse w is a COLUMN!!!
       val diff = combo - Y
       val twice_diff = diff * 2.0f
       var gs = X * twice_diff
@@ -58,7 +57,6 @@ trainAndTest.main(Array())
     while ( errScore > THRESHOLD ) {
       for ( (e,l) <- examples ) {
         w -= gradients(e, l) * ALPHA
-        println(iters)
       }
       iters += 1
       err = zeros(err.ncols, 1)
@@ -66,8 +64,10 @@ trainAndTest.main(Array())
         err += error(e, l)
       }
       errScore = maxi(err,1)(0,0)
-      println(errScore)
-      //if ( iters%20 == 0 ) { ALPHA = ALPHA * 0.9f }
+      if ( true ) { 
+        println("Trained " + iters + "iterations")
+        println(errScore)
+      }
     }
   }
 
