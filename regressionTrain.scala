@@ -3,6 +3,7 @@ import BIDMat.MatFunctions._
 import BIDMat.SciFunctions._
 import BIDMat.Solvers._
 import BIDMat.Plotting._
+import scala.collection.mutable.ListBuffer
 
 lineTest.main(Array())
 trainAndTest.main(Array())
@@ -11,7 +12,7 @@ trainAndTest.main(Array())
   // Y : a column vector of labels.  ith row is the label for the ith col of X
   // a : the step size
   // t : how much error we are willing to accept
-  class trainer(XList: List[FMat], YList: List[FMat], a: Float, t: Float) {
+  class trainer(XList: ListBuffer[FMat], YList: ListBuffer[FMat], a: Float, t: Float) {
     if ( XList.length != YList.length ) { println("ERROR: num examples does not match num labels") }
     var numWeights = XList(0).nrows
     for ( X <- XList ) { if ( X.nrows != numWeights ) { println("ERROR: all X blocks do not have same nrows") } }
@@ -66,7 +67,7 @@ trainAndTest.main(Array())
       val X:FMat = (1 \ 2 \ 3) on (1 \ 1 \ 1) on (1 \ 1 \ 1)
       val Y:FMat = 1 on 2 on 3
       println("X:\n" + X + "\nY:\n" + Y)
-      val classifier = new trainer(List(X), List(Y), 0.001f, 0.00000000001f)
+      val classifier = new trainer(new ListBuffer(X), new ListBuffer(Y), 0.001f, 0.00000000001f)
       println("Learned weights:\n" + classifier.w)
       println("Weights should be:\n" + X\\Y)
     }
@@ -75,23 +76,28 @@ trainAndTest.main(Array())
   object trainAndTest {
     def main(args: Array[String]) {
       println("loading data")
-      var y:IMat = load("out/TrimmedSparseY.mat", "Y")
-      val yList = List(FMat(y))
-      var x: SMat = null
+      val xList = new ListBuffer()
       for ( i <- 1 to 975 ) { 
         val block: SMat = load("out/TrimmedSparse"+i+".mat", i+"X")
-        if ( x == null ) { x = block }
-        else { x = x \ block }
+        xList +=: block
       }
       val lastBlock: SMat = load("out/TrimmedSparseLastX.mat", "LastX")
-      x = x \ lastBlock
-      val xList = List(full(x))
+      xList +=: lastBlock
+
+      var y = load("out/TrimmedSparseY")
+      y = y.t
+      val yList = new ListBuffer()
+      for (i <- 0 to y.ncols by 1000) {
+        if (i+999 < y.ncols ) { yList +=: y(?, i to i+999).t }
+        else { yList +=: y(?, i to y.ncols-1).t }
+      }
       
+
       println("creating and training classifier")
       val classifier = new trainer(xList, yList, 0.001f, 0.000001f)
       for ( i <- 0 to x.ncols-1 ) { 
         println("classifier predicted: " + classifier.predict(full(x(?, i)).t) )
-        println("actually was: " + y(i, 0))
+        println("actually was: " + y(0, i))
       }
     }
   }
