@@ -84,7 +84,7 @@ object FirstPass {
     
     println("building X matrix...")
     var X: SMat = null
-    for ( i <- 0 to 10000 ) { //wordBag.keys.size-1 ) {
+    for ( i <- 0 to wordBag.keys.size-1 ) {
       var ii: IMat = null
       for ( t <- wordBag(i) ) {
         if ( ii == null ) { ii = icol(revTokenIndex(t)) }
@@ -97,10 +97,14 @@ object FirstPass {
       else { c = sparse(ii, jj, vv, dictionary.size, 1) }
       if ( X == null ) { X = c }
       else { X = X \ c }
-      if ( i%1000 == 0 ) { println("X is " + i + " cols") }
+      if ( (i+1)%1000 == 0 ) { 
+        println("Saving " + (i+1)/1000.0 + "th partial X") 
+        saveAs("out/TrimmedSparse"+(i+1/1000.0)+".mat", X, "X"+(i+1)/1000.0)
+        X = null
+      }
     }
-    println("built X matrix")
-    println("saving files")
-    saveAs("TrimmedSparse.mat", X, "X", Y, "Y")
+    println("saving Y and last partial X")
+    saveAs("out/TrimmedSparseY.mat", Y, "Y")
+    saveAs("out/TrimmedSparseLastX.mat", X, "XLast")
   }
 }
