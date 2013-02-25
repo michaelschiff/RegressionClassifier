@@ -113,10 +113,10 @@ object FirstPass {
     println("saving Y and last partial X")
     if (stem) {
       saveAs("StemmedOut/StemmedTrimmedSparseY.mat", Y, "Y")
-      saveAs("StemmedOut/StemmedTrimmedSparseLastX.mat", X, "XLast")
+      saveAs("StemmedOut/StemmedTrimmedSparseLastX.mat", X, "LastStemmedX")
     } else {
       saveAs("out/TrimmedSparseY.mat", Y, "Y")
-      saveAs("out/TrimmedSparseLastX.mat", X, "XLast")
+      saveAs("out/TrimmedSparseLastX.mat", X, "LastX")
     }
   }
 }
