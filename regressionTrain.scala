@@ -15,7 +15,6 @@ trainAndTest.main(Array())
     if ( XList.length != YList.length ) { println("ERROR: num examples does not match num labels") }
     var numWeights = XList(0).nrows
     for ( X <- XList ) { if ( X.nrows != numWeights ) { println("ERROR: all X blocks do not have same nrows") } }
-    //Mat.noMKL=true
     val THRESHOLD: Float = t
     var ALPHA: Float = a
     var w: FMat = zeros(numWeights ,1)
@@ -30,10 +29,9 @@ trainAndTest.main(Array())
       return gs
     }
 
-    def error(X: FMat, Y:FMat): Float = {
+    def error(X: FMat, Y:FMat): FMat = {
       val k: FMat = gradients(X, Y)
-      val e: Float = sum(abs(k), 1)(0,0)
-      //println(e)
+      val e: Float = abs(k)
       return e
     }
     
@@ -42,23 +40,23 @@ trainAndTest.main(Array())
     //setup for training loop
     val examples = XList.zip(YList)
     var iters = 0
-    var oldErr: Float = 10000000.0f
-    var err: Float =  0.0f
+    var err: FMat =  0.0f
     for ( (e,l) <- examples ) {
       err += error(e, l)
     }
+    var errScore: Float = max(err, 1)
 
     //training loop
-    while ( oldErr - err > THRESHOLD ) {
+    while ( errScore > THRESHOLD ) {
       for ( (e,l) <- examples ) {
         w -= gradients(e, l) * ALPHA
       }
       iters += 1
-      oldErr = err
-      err = 0
+      err = zeros(err.ncols, 1)
       for ( (e,l)  <- examples ) {
         err += error(e, l)
       }
+      errScore = max(err,1)
       //if ( iters%20 == 0 ) { ALPHA = ALPHA * 0.9f }
     }
   }
