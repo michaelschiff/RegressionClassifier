@@ -17,7 +17,7 @@ object FirstPass {
   var labelBag: Map[Integer, Int] = Map[Integer, Int]()
   var tokenIndex: Map[Integer, String] = Map[Integer, String]()
   var revTokenIndex: Map[String, Integer] = Map[String, Integer]()
-  var stem = true
+  var stem = false
   val stemmer = new Stemmer()
 
   def main(args: Array[String]) {
@@ -105,8 +105,8 @@ object FirstPass {
       else { X = X \ c }
       if ( (i+1)%1000 == 0 ) { 
         println("Saving " + (i+1)/1000.0 + "th partial X") 
-        if (stem) { saveAs("StemmedOut/StemmedTrimmedSparse"+((i+1)/1000.0)+".mat", X, ((i+1)/1000.0)+"StemmedX") }
-        else { saveAs("out/TrimmedSparse"+((i+1)/1000.0)+".mat", X, ((i+1)/1000.0)+"X") }
+        if (stem) { saveAs("StemmedOut/StemmedTrimmedSparse"+((i+1)/1000.0).toInt+".mat", X, ((i+1)/1000.0).toInt+"StemmedX") }
+        else { saveAs("out/TrimmedSparse"+((i+1)/1000.0).toInt+".mat", X, ((i+1)/1000.0).toInt+"X") }
         X = null
       }
     }

@@ -11,36 +11,54 @@ trainAndTest.main(Array())
   // Y : a column vector of labels.  ith row is the label for the ith col of X
   // a : the step size
   // t : how much error we are willing to accept
-  class trainer(X: FMat, Y: FMat, a: Float, t: Float) {
-    if ( X.ncols != Y.nrows ) { println("ERROR: num examples does not match num labels") }
-    Mat.noMKL=true
+  class trainer(XList: List[FMat], YList: List[FMat], a: Float, t: Float) {
+    if ( XList.length != YList.length ) { println("ERROR: num examples does not match num labels") }
+    var numWeights = XList(0).nrows
+    for ( X <- XList ) { if ( X.nrows != numWeights ) { println("ERROR: all X blocks do not have same nrows") } }
+    //Mat.noMKL=true
     val THRESHOLD: Float = t
     var ALPHA: Float = a
-    var w: FMat = zeros(X.nrows ,1)
-    def gradients(): FMat = {
+    var w: FMat = zeros(numWeights ,1)
+   
+    def gradients(X: FMat, Y:FMat): FMat = {
+      if ( X.ncols != Y.nrows ) { println("ERROR: block dimensions to not match") }
       val combo = (w.t * X).t
       val diff = combo - Y
-      val twice_diff = (diff * 2.0f)
+      val twice_diff = diff * 2.0f
       var gs = X * twice_diff
       gs = gs /@ X.ncols
-      //println("gradient 0:\n" + gs(0,0))
       return gs
     }
-    def error(): Float = {
-      val k: FMat = gradients()
+
+    def error(X: FMat, Y:FMat): Float = {
+      val k: FMat = gradients(X, Y)
       val e: Float = sum(abs(k), 1)(0,0)
-      println(e)
+      //println(e)
       return e
     }
+    
     def predict(x: FMat): Float = (x*w)(0,0)
+    
+    //setup for training loop
+    val examples = XList.zip(YList)
     var iters = 0
     var oldErr: Float = 10000000.0f
-    var err: Float = error()
+    var err: Float =  0.0f
+    for ( (e,l) <- examples ) {
+      err += error(e, l)
+    }
+
+    //training loop
     while ( oldErr - err > THRESHOLD ) {
-      w -= gradients() * ALPHA
+      for ( (e,l) <- examples ) {
+        w -= gradients(e, l) * ALPHA
+      }
       iters += 1
       oldErr = err
-      err = error()
+      err = 0
+      for ( (e,l)  <- examples ) {
+        err += error(e, l)
+      }
       //if ( iters%20 == 0 ) { ALPHA = ALPHA * 0.9f }
     }
   }
@@ -50,7 +68,7 @@ trainAndTest.main(Array())
       val X:FMat = (1 \ 2 \ 3) on (1 \ 1 \ 1) on (1 \ 1 \ 1)
       val Y:FMat = 1 on 2 on 3
       println("X:\n" + X + "\nY:\n" + Y)
-      val classifier = new trainer(X, Y, 0.001f, 0.00000000001f)
+      val classifier = new trainer(List(X), List(Y), 0.001f, 0.00000000001f)
       println("Learned weights:\n" + classifier.w)
       println("Weights should be:\n" + X\\Y)
     }
@@ -59,15 +77,23 @@ trainAndTest.main(Array())
   object trainAndTest {
     def main(args: Array[String]) {
       println("loading data")
-      val e: SMat = load("TrimmedSparse.mat", "X")
-      var l: IMat = load("TrimmedSparse.mat", "Y")
-      l = l(0 to 10000, 0)
-      print("training classifier")
-      val classifier = new trainer(full(e), FMat(l), 0.01f, 0.0001f)
-      println("finished training")
-      for ( i <- 0 to e.ncols-1 ) {
-        println("classifier predicted: " + classifier.predict(full(e(?,i).t)))
-        println("actually was: " + l(i,0))
+      var y:IMat = load("out/TrimmedSparseY.mat", "Y")
+      val yList = List(FMat(y))
+      var x: SMat = null
+      for ( i <- 1 to 975 ) { 
+        val block: SMat = load("out/TrimmedSparse"+i+".mat", i+"X")
+        if ( x == null ) { x = block }
+        else { x = x \ block }
+      }
+      val lastBlock: SMat = load("out/TrimmedSparseLastX.mat", "LastX")
+      x = x \ lastBlock
+      val xList = List(full(x))
+      
+      println("creating and training classifier")
+      val classifier = new trainer(xList, yList, 0.001f, 0.000001f)
+      for ( i <- 0 to x.ncols-1 ) { 
+        println("classifier predicted: " + classifier.predict(full(x(?, i)).t) )
+        println("actually was: " + y(i, 0))
       }
     }
   }
