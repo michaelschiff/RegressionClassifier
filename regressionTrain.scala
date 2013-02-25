@@ -22,10 +22,11 @@ trainAndTest.main(Array())
     var ALPHA: Float = a
     var w: FMat = zeros(numWeights ,1)
    
-    def gradients(X: FMat, Y:FMat): FMat = {
+    def gradients(X: SMat, Y:FMat): FMat = {
       println("called gradients")
       if ( X.ncols != Y.nrows ) { println("ERROR: block dimensions to not match") }
-      val combo = (w.t * X).t
+      //val combo = (w.t * X).t
+      val combo = X Tmult(w.t, null)
       val diff = combo - Y
       val twice_diff = diff * 2.0f
       var gs = X * twice_diff
@@ -33,7 +34,7 @@ trainAndTest.main(Array())
       return gs
     }
 
-    def error(X: FMat, Y:FMat): FMat = {
+    def error(X: SMat, Y:FMat): FMat = {
       val k: FMat = gradients(X, Y)
       val e: FMat = abs(k)
       return e
@@ -48,7 +49,7 @@ trainAndTest.main(Array())
     var err: FMat =  0.0f
     println("calculating initial err")
     for ( (e,l) <- examples ) {
-      err += error(full(e), l)
+      err += error(e, l)
     }
     var errScore: Float = maxi(err, 1)(0,0)
 
@@ -56,13 +57,13 @@ trainAndTest.main(Array())
     println("off to the races")
     while ( errScore > THRESHOLD ) {
       for ( (e,l) <- examples ) {
-        w -= gradients(full(e), l) * ALPHA
+        w -= gradients(e, l) * ALPHA
         println(iters)
       }
       iters += 1
       err = zeros(err.ncols, 1)
       for ( (e,l)  <- examples ) {
-        err += error(full(e), l)
+        err += error(e, l)
       }
       errScore = maxi(err,1)(0,0)
       println(errScore)
