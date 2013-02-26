@@ -14,11 +14,11 @@ FirstPass.main(Array())
 object FirstPass {
   
   var dictionary: Set[String] = Set[String]()
-  var wordBag: Map[Integer, Map[String, Integer]] = new Map[Integer, Map[String, Integer]]() // ( review -> ( word -> wordCount) )
+  var wordBag: Map[Integer, Map[String, Integer]] = Map[Integer, Map[String, Integer]]() // ( review -> ( word -> wordCount) )
   var labelBag: Map[Integer, Int] = Map[Integer, Int]()  // review num -> label
   var tokenIndex: Map[Integer, String] = Map[Integer, String]()
   var revTokenIndex: Map[String, Integer] = Map[String, Integer]()
-  var stem = false
+  var stem = true
   val stemmer = new Stemmer()
 
   def main(args: Array[String]) {
@@ -59,7 +59,7 @@ object FirstPass {
       if ( reviewFlag && index < 100000 ) {
         var wd = words(index)
         if (stem) { wd = stemmer.stem(wd) }
-        if ( wordBag(review).values contains wd ) { wordBag(review)(wd) += 1 }
+        if ( wordBag(review) contains wd ) { wordBag(review)(wd) += 1 }
         else { wordBag(review)(wd) = 1 }
         dictionary = dictionary + wd
       }
@@ -93,12 +93,17 @@ object FirstPass {
     var X: SMat = null
     for ( i <- 0 to wordBag.keys.size-1 ) {
       var ii: IMat = null
-      for ( t <- wordBag(i) ) {
+      for ( t <- wordBag(i).keys ) {
         if ( ii == null ) { ii = icol(revTokenIndex(t)) }
         else { ii = ii on revTokenIndex(t) }
       }
       val jj: IMat = IMat(wordBag(i).size, 1)
-      val vv: FMat = ones(wordBag(i).size, 1)
+      var vv: FMat = null
+      for ( t <- wordBag(i).keys ) {
+        val v = wordBag(i)(t).toFloat
+        if ( vv == null ) { vv = col(v) }
+        else { vv = vv on col(v) }
+      }
       var c: SMat = null
       if ( ii == null ) { c = sparse(zeros(dictionary.size,1)) }
       else { c = sparse(ii, jj, vv, dictionary.size, 1) }
@@ -106,18 +111,18 @@ object FirstPass {
       else { X = X \ c }
       if ( (i+1)%1000 == 0 ) { 
         println("Saving " + (i+1)/1000.0 + "th partial X") 
-        if (stem) { saveAs("StemmedOut/StemmedTrimmedSparse"+((i+1)/1000.0).toInt+".mat", X, ((i+1)/1000.0).toInt+"StemmedX") }
-        else { saveAs("out/TrimmedSparse"+((i+1)/1000.0).toInt+".mat", X, ((i+1)/1000.0).toInt+"X") }
+        if (stem) { saveAs("CountsOut/CountsStemmedX"+((i+1)/1000.0).toInt+".mat", X, ((i+1)/1000.0).toInt+"CountsStemmedX") }
+        //else { saveAs("out/TrimmedSparse"+((i+1)/1000.0).toInt+".mat", X, ((i+1)/1000.0).toInt+"CountsX") }
         X = null
       }
     }
     println("saving Y and last partial X")
     if (stem) {
-      saveAs("StemmedOut/StemmedTrimmedSparseY.mat", Y, "Y")
-      saveAs("StemmedOut/StemmedTrimmedSparseLastX.mat", X, "LastStemmedX")
+      saveAs("CountsOut/CountsY.mat", Y, "CountsY")
+      saveAs("CountsOut/CountsStemmedLastX.mat", X, "LastCountsStemmedX")
     } else {
-      saveAs("out/TrimmedSparseY.mat", Y, "Y")
-      saveAs("out/TrimmedSparseLastX.mat", X, "LastX")
+      saveAs("out/TrimmedSparseY.mat", Y, "CountsY")
+      saveAs("out/TrimmedSparseLastX.mat", X, "CountsLastX")
     }
   }
 }
