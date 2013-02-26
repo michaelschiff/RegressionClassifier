@@ -4,22 +4,23 @@ import BIDMat.SciFunctions._
 import BIDMat.Solvers._
 import BIDMat.Plotting._
 import scala.collection.mutable.ListBuffer
+import scala.math
 
-lineTest.main(Array())
+//lineTest.main(Array())
 trainAndTest.main(Array())
 
   // X : a matrix of examples.  Each column is an example, each row is a feature
   // Y : a column vector of labels.  ith row is the label for the ith col of X
   // a : the step size
   // t : how much error we are willing to accept
-  class trainer(XList: ListBuffer[SMat], YList: ListBuffer[FMat], a: Float, t: Float) {
+  class trainer(XList: ListBuffer[SMat], YList: ListBuffer[FMat], a: Double, t: Double) {
     println("checking that num examples matches num labels")
     if ( XList.length != YList.length ) { println("ERROR: num examples does not match num labels") }
     var numWeights = XList(0).nrows
     println("checking that all example blocks have same nrows")
     for ( X <- XList ) { if ( X.nrows != numWeights ) { println("ERROR: all X blocks do not have same nrows") } }
-    val THRESHOLD: Float = t
-    var ALPHA: Float = a
+    val THRESHOLD: Double = t
+    var ALPHA: Double = a
     var w: FMat = zeros(numWeights ,1)
    
     def gradients(X: SMat, Y:FMat): FMat = {
@@ -36,8 +37,8 @@ trainAndTest.main(Array())
 
     def error(X: SMat, Y:FMat): FMat = {
       val k: FMat = gradients(X, Y)
-      val e: FMat = abs(k)
-      return e
+      //val e: FMat = abs(k)
+      return k //e
     }
     
     def predict(x: FMat): Float = (x*w)(0,0)
@@ -53,21 +54,23 @@ trainAndTest.main(Array())
     }
     var errScore: Float = maxi(err, 2)(0,0)
     var oldErrScore = errScore + 1
+    
     //training loop
     println("off to the races")
-    while ( errScore > THRESHOLD ) {
+    while ( oldErrScore - errScore > THRESHOLD || oldErrScore - errScore < 0-THRESHOLD ) {
       err = zeros(numWeights, 1)
       for ( (e,l) <- examples ) {
         val gs = gradients(e,l)
         w -= gs * ALPHA
-        err += abs(gs)
+        err += gs //abs(gs)
       }
       iters += 1
       oldErrScore = errScore
       errScore = maxi(err,2)(0,0)
+      if (iters > 100) { ALPHA = 1.0 / math.pow(iters, 4) }
       if ( true ) { 
         println("Trained " + iters + "iterations")
-        println(errScore*10000)
+        println(errScore)
       }
     }
   }
@@ -77,7 +80,7 @@ trainAndTest.main(Array())
       val X:FMat = (1 \ 2 \ 3) on (1 \ 1 \ 1) on (1 \ 1 \ 1)
       val Y:FMat = 1 on 2 on 3
       println("X:\n" + X + "\nY:\n" + Y)
-      val classifier = new trainer(new ListBuffer() += sparse(X), new ListBuffer() += Y, 0.001f, 0.0001f)
+      val classifier = new trainer(new ListBuffer() += sparse(X), new ListBuffer() += Y, 0.001, 0.0001)
       println("Learned weights:\n" + classifier.w)
       println("Weights should be:\n" + X\\Y)
     }
@@ -104,11 +107,11 @@ trainAndTest.main(Array())
       
 
       println("creating and training classifier")
-      val classifier = new trainer(xList, yList, 0.0000001f, 0.001f)
+      val classifier = new trainer(xList, yList, 0.000001, 0.0000000001)
       
       var testX = full(xList(0))
       var testY = yList(0)
-      for (i <- 0 to testX.ncols) {
+      for (i <- 0 to testX.ncols-1) {
         println("classifier predicted: " + classifier.predict(testX(?, i).t))
         println("actually was: " + testY(i,0))
       }
