@@ -88,13 +88,13 @@ trainAndTest.main(Array())
       println("loading data")
       val xList: ListBuffer[SMat] = new ListBuffer()
       for ( i <- 1 to 975 ) { 
-        val block: SMat = load("out/TrimmedSparse"+i+".mat", i+"X")
+        val block: SMat = load("CountsOut/CountsStemmedX"+i+".mat", i+"CountsStemmedX")
         xList += block
       }
-      //val lastBlock: SMat = load("out/TrimmedSparseLastX.mat", "LastX")
+      //val lastBlock: SMat = load("CountsOut/CountsStemmedLastX.mat", "LastCountsStemmedX")
       //xList += lastBlock
 
-      var y: IMat = load("out/TrimmedSparseY.mat", "Y")
+      var y: IMat = load("CountsOut/CountsY.mat", "CountsY")
       y = y.t
       val yList: ListBuffer[FMat] = new ListBuffer()
       for (i <- 0 to y.ncols by 1000) {
