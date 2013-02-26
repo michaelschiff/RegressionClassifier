@@ -28,7 +28,8 @@ trainAndTest.main(Array())
       val combo = X Tmult(w, null) //X is sparse w is a COLUMN!!!
       val diff = combo - Y
       val twice_diff = diff * 2.0f
-      var gs = X * twice_diff
+      //var gs = X * twice_diff
+      var gs = X SMult(sparse(twice_diff), null)
       gs = gs /@ X.ncols
       return gs
     }
@@ -45,28 +46,28 @@ trainAndTest.main(Array())
     println("zipping examples")
     val examples = XList.zip(YList)
     var iters = 0
-    var err: FMat =  0.0f
+    var err: FMat = zeros(numWeights, 1)
     println("calculating initial err")
     for ( (e,l) <- examples ) {
       err += error(e, l)
     }
-    var errScore: Float = maxi(err, 1)(0,0)
-
+    var errScore: Float = maxi(err, 2)(0,0)
+    var oldErrScore = errScore + 1
     //training loop
     println("off to the races")
     while ( errScore > THRESHOLD ) {
+      err = zeros(numWeights, 1)
       for ( (e,l) <- examples ) {
-        w -= gradients(e, l) * ALPHA
+        val gs = gradients(e,l)
+        w -= gs * ALPHA
+        err += abs(gs)
       }
       iters += 1
-      err = zeros(err.ncols, 1)
-      for ( (e,l)  <- examples ) {
-        err += error(e, l)
-      }
-      errScore = maxi(err,1)(0,0)
+      oldErrScore = errScore
+      errScore = maxi(err,2)(0,0)
       if ( true ) { 
         println("Trained " + iters + "iterations")
-        println(errScore)
+        println(errScore*10000)
       }
     }
   }
@@ -103,7 +104,7 @@ trainAndTest.main(Array())
       
 
       println("creating and training classifier")
-      val classifier = new trainer(xList, yList, 0.001f, 0.000001f)
+      val classifier = new trainer(xList, yList, 0.0000001f, 0.001f)
       
       var testX = full(xList(0))
       var testY = yList(0)
