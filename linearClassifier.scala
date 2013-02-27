@@ -98,10 +98,10 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
     //put the current test data back into the main list
     //this effectively shuffles over multiple iterations while keeping
     //corresponding blocks of X and Y together
-    for ( (tx,ty) <- XTest.zip(YTest) ) {
-      XList += tx
-      YList += ty
-    }
+    XList ++= XTest
+    YList ++= YTest
+    XTest = ArrayBuffer[SMat]()
+    YTest = ArrayBuffer[FMat]()
     iters += 1
   }
 }
