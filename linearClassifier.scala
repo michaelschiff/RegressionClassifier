@@ -27,11 +27,11 @@ object trainAndTest {
     }
     //initialize classifier
     println("creating and training classifier")
-    val classifier = new trainer(xList, yList, 0.000001)
+    val classifier = new trainer(xList, yList, 0.000001, 0.1)
   }
 }
 
-class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
+class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double, lambda: Double) {
   //basic error checking
   println("checking that num examples matches num labels")
   if ( XList.length != YList.length ) { println("ERROR: num examples does not match num labels") }
@@ -41,8 +41,12 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
   
   //step size
   var ALPHA: Double = a
+  //Regularization constant
+  var LAMBDA: Double = lambda
   //column vector of weights
   var w: FMat = zeros(numWeights ,1)
+  
+
 
   // variables to store hold out data
   var XTest: ArrayBuffer[SMat] = new ArrayBuffer[SMat]()
@@ -59,6 +63,9 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
     return gs
   }
 
+  //function to calculate Element-wise SIGN of a vector
+  def sign(x:FMat): FMat = ((2 * (x >= 0) - 1)+(2 * (x > 0) -1))/@2
+  
   //function to calculate performance given a block of X and Y from the test set
   def error(X: SMat, Y:FMat): Float = { 
     val e = X.Tmult(w, null) - Y
@@ -85,8 +92,7 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
     for ( i <- 0 to 9 ) {
       for ( (e,l) <- trainingExamples ) {
         val gs =  gradients(e,l)
-        w -= gs * ALPHA
-        //DO SOME KIND OF REGULARIZATION
+        w -= (gs * ALPHA) + (LAMBDA * sign(w)) //additive term is for Lasso Reg.
         gsSum += sqrt(sum(gs *@ gs, 1))(0,0)
       }
       gsSum = gsSum / (10 * trainingExamples.size/2.0f)
