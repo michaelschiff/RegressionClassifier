@@ -102,7 +102,7 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double, lam
     for ( (e,l) <- testingExamples ) {
       err += error(e, l)
     }
-    err = err / (testingExamples.size / 2.0f)
+    err = math.sqrt(err / (testingExamples.size / 2.0f))
     println("Iteration " + iters + ".\nAbsolute error per block: " + err+"\nGradient sum per block: " + gsSum + "\n============================================")
 
     iters += 1
