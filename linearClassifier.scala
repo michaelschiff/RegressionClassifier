@@ -60,7 +60,10 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
   }
 
   //function to calculate performance given a block of X and Y from the test set
-  def error(X: SMat, Y:FMat): Float = sum(abs(X.Tmult(w, null) - Y), 1)(0,0)
+  def error(X: SMat, Y:FMat): Float = { 
+    val e = X.Tmult(w, null) - Y
+    return sum(e *@ e, 1)
+  }
   
   //training loop
   var iters = 1
