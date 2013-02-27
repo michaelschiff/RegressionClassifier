@@ -46,7 +46,7 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
 
   // variables to store hold out data
   var XTest: ArrayBuffer[SMat] = new ArrayBuffer[SMat]()
-  var YTest: ArrayBuffer[FMat] = new ArrayBuffer[SMat]()
+  var YTest: ArrayBuffer[FMat] = new ArrayBuffer[FMat]()
   
   //function to calculate gradients for each weight given a block of X and Y from the training sets
   def gradients(X: SMat, Y:FMat): FMat = {
