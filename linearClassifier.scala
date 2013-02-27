@@ -27,7 +27,7 @@ object trainAndTest {
     }
     //initialize classifier
     println("creating and training classifier")
-    val classifier = new trainer(xList, yList, 0.00000001, 0.001)
+    val classifier = new trainer(xList, yList, 0.00000001)
   }
 }
 
@@ -46,7 +46,7 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
 
   // variables to store hold out data
   var XTest: ArrayBuffer[SMat] = new ArrayBuffer[SMat]()
-  var YTest: ArrayBuffer[SMat] = new ArrayBuffer[SMat]()
+  var YTest: ArrayBuffer[FMat] = new ArrayBuffer[SMat]()
   
   //function to calculate gradients for each weight given a block of X and Y from the training sets
   def gradients(X: SMat, Y:FMat): FMat = {
@@ -61,7 +61,7 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
   }
 
   //function to calculate performance given a block of X and Y from the test set
-  def error(X: SMat, Y:FMat): Float = sum(abs(X Tmult(w, null) - Y), 1)(0,0)
+  def error(X: SMat, Y:FMat): Float = sum(abs(X.Tmult(w, null) - Y), 1)(0,0)
   
   //training loop
   var iters = 1
