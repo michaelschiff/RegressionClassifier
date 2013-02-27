@@ -71,32 +71,31 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double, lam
     val e = X.Tmult(w, null) - Y
     return sum(e *@ e, 1)(0,0)
   }
-  
+
+  //partition XList into XTrain XTest and YList into YTrain YTest
+  val rng = new Random()
+  for ( i <- 0 to 97 ) { //randomly select 98 matching blocks of X and Y to use as hold out
+    val blockNum = rng.nextInt(XList.size)
+    val xBlock = XList.remove(blockNum)
+    val yBlock = YList.remove(blockNum)
+    XTest += xBlock
+    YTest += yBlock
+  }
+  //zip training X/Y and test X/Y
+  val trainingExamples = XList.zip(YList)
+  val testingExamples = XTest.zip(YTest)
+ 
   //training loop
   var iters = 1
   while (true) { //currently train forever, we are evaluating performance as we go
-    //partition XList into XTrain XTest and YList into YTrain YTest
-    val rng = new Random()
-    for ( i <- 0 to 97 ) { //randomly select 98 matching blocks of X and Y to use as hold out
-      val blockNum = rng.nextInt(XList.size)
-      val xBlock = XList.remove(blockNum)
-      val yBlock = YList.remove(blockNum)
-      XTest += xBlock
-      YTest += yBlock
-    }
-    //zip training X/Y and test X/Y
-    val trainingExamples = XList.zip(YList)
-    val testingExamples = XTest.zip(YTest)
     //make an adjustment to the weights for every trainingExample
     var gsSum = 0.0f
-    for ( i <- 0 to 9 ) {
-      for ( (e,l) <- trainingExamples ) {
-        val gs =  gradients(e,l)
-        w -= (gs * ALPHA) + (LAMBDA * sign(w)) //additive term is for Lasso Reg.
-        gsSum += sqrt(sum(gs *@ gs, 1))(0,0)
-      }
-      gsSum = gsSum / (10 * trainingExamples.size/2.0f)
+    for ( (e,l) <- trainingExamples ) {
+      val gs =  gradients(e,l)
+      w -= (gs * ALPHA) + (LAMBDA * sign(w)) //additive term is for Lasso Reg.
+      gsSum += sqrt(sum(gs *@ gs, 1))(0,0)
     }
+    gsSum = gsSum / (trainingExamples.size/2.0f)
     //calculate absolute error for all testingExamples
     var err: Float = 0.0f
     for ( (e,l) <- testingExamples ) {
@@ -105,13 +104,6 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double, lam
     err = err / (testingExamples.size / 2.0f)
     println("Iteration " + iters + ".\nAbsolute error per block: " + err+"\nGradient sum per block: " + gsSum + "\n============================================")
 
-    //put the current test data back into the main list
-    //this effectively shuffles over multiple iterations while keeping
-    //corresponding blocks of X and Y together
-    XList ++= XTest
-    YList ++= YTest
-    XTest = ArrayBuffer[SMat]()
-    YTest = ArrayBuffer[FMat]()
     iters += 1
   }
 }
