@@ -56,7 +56,6 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
     val twice_diff = diff * 2.0f
     var gs = X SMult(sparse(twice_diff), null)
     gs = gs /@ X.ncols
-    // DO RIDGE REGULARIZATION HERE
     return gs
   }
 
@@ -81,9 +80,13 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
     //make an adjustment to the weights for every trainingExample
     var gsSum = 0.0f
     for ( (e,l) <- trainingExamples ) {
-      val gs =  gradients(e,l)
-      w -= gs * ALPHA
-      gsSum += sum(abs(gs),1)(0,0)
+      for (i <- 0 to 9) {
+        val gs =  gradients(e,l)
+        w -= gs * ALPHA
+        //DO SOME KIND OF REGULARIZATION
+        gsSum += sum(abs(gs),1)(0,0)
+      }
+      gsSum = gsSum / 10
     }
     //calculate absolute error for all testingExamples
     var err: Float = 0.0f
