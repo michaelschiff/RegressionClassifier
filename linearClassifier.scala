@@ -27,7 +27,7 @@ object trainAndTest {
     }
     //initialize classifier
     println("creating and training classifier")
-    val classifier = new trainer(xList, yList, 0.00000001)
+    val classifier = new trainer(xList, yList, 0.000001)
   }
 }
 
@@ -62,7 +62,7 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
   //function to calculate performance given a block of X and Y from the test set
   def error(X: SMat, Y:FMat): Float = { 
     val e = X.Tmult(w, null) - Y
-    return sum(e *@ e, 1)
+    return sum(e *@ e, 1)(0,0)
   }
   
   //training loop
