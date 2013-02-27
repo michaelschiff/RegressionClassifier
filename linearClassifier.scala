@@ -96,7 +96,8 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
     for ( (e,l) <- testingExamples ) {
       err += error(e, l)
     }
-    println("Iteration " + iters + ".\nAbsolute error: " + err+"\nGradient sum: " + gsSum + "\n============================================")
+    err = err / (testingExamples.size / 2.0f)
+    println("Iteration " + iters + ".\nAbsolute error per block: " + err+"\nGradient sum per block: " + gsSum + "\n============================================")
 
     //put the current test data back into the main list
     //this effectively shuffles over multiple iterations while keeping
