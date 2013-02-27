@@ -79,15 +79,18 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
     val trainingExamples = XList.zip(YList)
     val testingExamples = XTest.zip(YTest)
     //make an adjustment to the weights for every trainingExample
+    var gsSum = 0.0f
     for ( (e,l) <- trainingExamples ) {
-      w -= gradients(e,l) * ALPHA
+      val gs =  gradients(e,l)
+      w -= gs * ALPHA
+      gsSum += sum(abs(gs),1)(0,0)
     }
     //calculate absolute error for all testingExamples
     var err: Float = 0.0f
     for ( (e,l) <- testingExamples ) {
       err += error(e, l)
     }
-    println("Iteration " + iters + ".  Absolute error: " + err)
+    println("Iteration " + iters + ".\nAbsolute error: " + err+"\nGradient sum: " + gsSum + "\n============================================")
 
     //put the current test data back into the main list
     //this effectively shuffles over multiple iterations while keeping

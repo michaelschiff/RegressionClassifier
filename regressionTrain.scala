@@ -109,7 +109,7 @@ trainAndTest.main(Array())
       
 
       println("creating and training classifier")
-      val classifier = new trainer(xList, yList, 0.00000001, 0.001)
+      val classifier = new trainer(xList, yList, 0.000001, 0.001)
       
       var testX = full(xList(0))
       var testY = yList(0)
