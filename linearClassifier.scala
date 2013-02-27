@@ -87,9 +87,10 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
         val gs =  gradients(e,l)
         w -= gs * ALPHA
         //DO SOME KIND OF REGULARIZATION
-        gsSum += sqrt(sum(gs *@ gs, 1))
+        gsSum += sqrt(sum(gs *@ gs, 1))(0,0)
       }
-      gsSum = gsSum / (10 * trainingExamples.size/2.0)
+      gsSum = gsSum / (10 * trainingExamples.size/2.0f)
+    }
     //calculate absolute error for all testingExamples
     var err: Float = 0.0f
     for ( (e,l) <- testingExamples ) {
