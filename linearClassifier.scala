@@ -87,7 +87,7 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
         val gs =  gradients(e,l)
         w -= gs * ALPHA
         //DO SOME KIND OF REGULARIZATION
-        gsSum += sum(abs(gs),1)(0,0)
+        gsSum += maxi(abs(gs),1)(0,0)
       }
       gsSum = gsSum / 10
     }
