@@ -82,15 +82,14 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double) {
     val testingExamples = XTest.zip(YTest)
     //make an adjustment to the weights for every trainingExample
     var gsSum = 0.0f
-    for ( (e,l) <- trainingExamples ) {
-      for (i <- 0 to 9) {
+    for ( i <- 0 to 9 ) {
+      for ( (e,l) <- trainingExamples ) {
         val gs =  gradients(e,l)
         w -= gs * ALPHA
         //DO SOME KIND OF REGULARIZATION
-        gsSum += maxi(abs(gs),1)(0,0)
+        gsSum += sqrt(sum(gs *@ gs, 1))
       }
-      gsSum = gsSum / 10
-    }
+      gsSum = gsSum / (10 * trainingExamples.size/2.0)
     //calculate absolute error for all testingExamples
     var err: Float = 0.0f
     for ( (e,l) <- testingExamples ) {
