@@ -25,6 +25,7 @@ object FirstPass {
     firstPass()
     secondPass()
     thirdPass()
+    fourthPass()
   }
 
   def firstPass() = {
@@ -75,7 +76,7 @@ object FirstPass {
     println("book keeping...")
     var i: Integer = 0
     for ( x <- dictionary ) {
-      //tokenIndex += ( i -> x )
+      tokenIndex += ( i -> x )
       revTokenIndex += ( x -> i)
       i += 1
     }
@@ -124,6 +125,15 @@ object FirstPass {
       saveAs("out/TrimmedSparseY.mat", Y, "CountsY")
       saveAs("out/TrimmedSparseLastX.mat", X, "CountsLastX")
     }
+  }
+
+  def fourthPass() = {
+    println("building and saving dictionary column")
+    val dict: CSMat = CSMat(dictionary.size, 1)
+    for ( t <- dictionary ) {
+      dict(revTokenIdex(t), 0) = t
+    }
+    saveAs("CountsOut/Dict.mat")
   }
 }
 
