@@ -6,7 +6,7 @@ import BIDMat.Plotting._
 import scala.collection.mutable.ListBuffer
 import scala.math
 
-//lineTest.main(Array())
+lineTest.main(Array())
 trainAndTest.main(Array())
 
   // X : a matrix of examples.  Each column is an example, each row is a feature
