@@ -19,7 +19,7 @@ object trainAndTest {
       xList += block
     }
     //build buffer of Y blocks
-    var y: IMat = load("CountsOut/CountsY.mat", "CountsY")
+    var y: FMat = load("CountsOut/CountsY.mat", "CountsY")
     y = y.t
     val yList: ArrayBuffer[FMat] = new ArrayBuffer()
     for (i <- 0 to y.ncols by 1000) {
