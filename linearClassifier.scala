@@ -69,7 +69,7 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double, lam
   //function to calculate performance given a block of X and Y from the test set
   def error(X: SMat, Y:FMat): Float = { 
     val e = X.Tmult(w, null) - Y
-    return sqrt(sum(e *@ e, 1))(0,0) / X.ncols
+    return sum(e *@ e, 1)(0,0) / X.ncols
   }
 
   //partition XList into XTrain XTest and YList into YTrain YTest
@@ -101,7 +101,7 @@ class trainer(XList: ArrayBuffer[SMat], YList: ArrayBuffer[FMat], a: Double, lam
     for ( (e,l) <- testingExamples ) {
       err += error(e, l)
     }
-    err = err / (testingExamples.size / 2.0f)
+    err = math.sqrt(err / (testingExamples.size / 2.0f)).toFloat
     println("Iteration " + iters + ".\nAbsolute error per block: " + err+"\nGradient sum per block: " + gsSum + "\n============================================")
 
     iters += 1
