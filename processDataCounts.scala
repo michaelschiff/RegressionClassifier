@@ -99,7 +99,7 @@ object FirstPass {
         if ( ii == null ) { ii = icol(revTokenIndex(t)) }
         else { ii = ii on revTokenIndex(t) }
       }
-      val jj: IMat = IMat(wordBag(i).size, 1)
+      val jj: IMat = IMat(wordBag(i).keys.size, 1)
       var vv: FMat = null
       for ( t <- wordBag(i).keys ) {
         val v = wordBag(i)(t).toFloat
@@ -107,7 +107,7 @@ object FirstPass {
         else { vv = vv on col(v) }
       }
       var c: SMat = null
-      if ( ii == null ) { c = sparse(zeros(dictionary.size,1)) }
+      if ( ii == null ) { c = sparse(zeros(dictionary.size,1), dictionary.size,1) }
       else { c = sparse(ii, jj, vv, dictionary.size, 1) }
       if ( X == null ) { X = c }
       else { X = X \ c }
