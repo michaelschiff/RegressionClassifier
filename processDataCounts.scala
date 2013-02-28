@@ -87,11 +87,13 @@ object FirstPass {
   
   def thirdPass() = {
     println("building Y...")
-    var Y:Imat = null
-    for ( i <- 0 to labelBag.keys.size-1) {
-      if (Y == null) { Y = icol(labelBag(i)) }
-      else { Y = Y on icol(labelBag(i)) }
-    }
+    var Y:FMat = FMat(labelBag.keys.size, 1)
+    for (i <- 0 to Y.nrows-1) { Y(i, 0) = labelBag(i).toFloat }
+    //var Y:Imat = null
+    //for ( i <- 0 to labelBag.keys.size-1) {
+    //  if (Y == null) { Y = icol(labelBag(i)) }
+    //  else { Y = Y on icol(labelBag(i)) }
+    //}
     var Y:IMat = icol(labelBag.values.toList)
     println("built Y vector")
     
